@@ -1,0 +1,81 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// 📊 DASHBOARD — UTILITÁRIOS (DashboardUtils.gs)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+
+/**
+ * Converte qualquer valor de data em Date object.
+ * Aceita: Date object, número serial do Sheets, string parseável.
+ */
+function toDate_(v) {
+  if (!v) return null;
+  if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
+  if (typeof v === 'number' && v > 1 && v < 200000) {
+    var d = new Date(1899, 11, 30);
+    d.setDate(d.getDate() + Math.floor(v));
+    return isNaN(d.getTime()) ? null : d;
+  }
+  if (typeof v === 'string') {
+    var s = v.trim();
+    if (!s) return null;
+    var partes = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (partes) {
+      var d2 = new Date(parseInt(partes[3]), parseInt(partes[2]) - 1, parseInt(partes[1]));
+      return isNaN(d2.getTime()) ? null : d2;
+    }
+    var d3 = new Date(s);
+    return isNaN(d3.getTime()) ? null : d3;
+  }
+  return null;
+}
+
+
+/**
+ * Formata data como "Mmm/YYYY" (ex: "Mar/2026")
+ */
+function fmtMes_(v) {
+  var d = toDate_(v);
+  if (!d) return null;
+  var nomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return nomes[d.getMonth()] + '/' + d.getFullYear();
+}
+
+
+/**
+ * Converte valor em número seguro
+ */
+function toN_(v) {
+  if (typeof v === 'number') return v;
+  if (!v) return 0;
+  var n = parseFloat(String(v).replace(/[^\d,.-]/g, '').replace(',', '.'));
+  return isNaN(n) ? 0 : n;
+}
+
+
+/**
+ * Parseia valor BRL para número
+ */
+function parseBRL_(v) {
+  if (v == null) return 0;
+  if (typeof v === 'number') return v;
+  var s = String(v).replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
+  var n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+
+
+/**
+ * Arredonda para 2 casas decimais
+ */
+function round2_(v) {
+  return Math.round(v * 100) / 100;
+}
+
+
+/**
+ * Formata data como yyyy-MM-dd
+ */
+function fmtDateISO_(d) {
+  if (!d) return null;
+  return Utilities.formatDate(d, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+}
